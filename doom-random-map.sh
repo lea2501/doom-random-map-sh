@@ -52,18 +52,11 @@ get_map_file() {
 
     # Get maps from pwad
     gzdoom -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile -norun -hashfiles > /dev/null
-    #gzdoom -iwad $IWADS_DIR/$IWAD.wad -file /home/lea/games/doom/wads/doom/limit_removing/return_to_Hadron/hadrone2.wad -norun -hashfiles > /dev/null
-    
-    #cat fileinfo.txt | grep $pwadfilename | grep " MAP" | grep -v " MAPINFO" | awk '{print $4}' | sed -e "s/^MAP//" -e 's/,//g' | shuf -n 1
-    #cat fileinfo.txt | grep hadrone2
-    #exit 0
 
     if [[ $IWAD == "doom2" ]]; then
         pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep " MAP" | awk '{print $4}' | sed -e "s/^MAP//" -e 's/,//g' | shuf -n 1)
-        #pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep " MAP" | awk '{print $4}' | sed -e "s/^MAP//" -e 's/,//g' | shuf -n 1)
         if [[ -z $pwadmap ]]; then
             pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep " maps/" | awk '{print $4}' | sed -e "s/^maps\/map//" -e 's/.wad,//g' | shuf -n 1)
-            #pwadmap=$(cat fileinfo.txt | grep hadrone2 | grep " maps/" | awk '{print $4}' | sed -e "s/^maps\/map//" -e 's/.wad,//g' | shuf -n 1)
         fi
         echo "PWAD map number: $pwadmap"
 
@@ -71,8 +64,6 @@ get_map_file() {
     elif [[ $IWAD == "doom" ]]; then
         pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep -E " E[1-5]M" | awk '{print $4}' | shuf -n 1 | sed -r 's/[EM]+/ /g' | sed -e "s/^0//" -e 's/,//g')
         echo "PWAD map number: $pwadmap"
-
-        #mapnumbercheck=$(echo "$pwadmap" | awk '$0 ~/[^0-9]/ { print "NOT_NUMBER" }')
     fi
 
     # Remove temporary file
@@ -92,6 +83,7 @@ do
     get_map_file
 done
 
+# You can have separate mods "sets" for the source ports
 if [[ $ENGINE == "gzdoom" ]]; then
     MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JoyPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
 else
