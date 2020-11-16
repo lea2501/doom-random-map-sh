@@ -6,7 +6,7 @@
 ### Configuration
 GAME_DIR=~/games/doom
 IWADS_DIR=$GAME_DIR/wads/original
-USAGE_MESSAGE="Usage: doom-random-map.sh <doom|doom2|tnt|plutonia> <chocolate-doom|crispy-doom|prboom-plus|gzdoom>"
+USAGE_MESSAGE="Usage: doom-random-map.sh <doom|doom2|tnt|plutonia> <chocolate-doom|crispy-doom|prboom-plus|gzdoom> <vanilla|limit_removing|boom|zdoom>(Optional)"
 if [[ $1 == "--help" || $1 == "-h" ]]; then
     echo $USAGE_MESSAGE
     exit 1
@@ -23,11 +23,15 @@ if [[ -z $2 ]]; then
 else
     ENGINE=$2
 fi
-
+if [[ ! -z $3 ]]; then
+    echo $PWAD_DIR
+fi
 
 ### Script
 get_map_file() {
-    if [[ $ENGINE == "chocolate-doom" ]]; then
+    if [[ ! -z $PWAD_DIR ]]; then
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/$PWAD_DIR/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+    elif [[ $ENGINE == "chocolate-doom" ]]; then
         pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $ENGINE == "crispy-doom" ]]; then
         pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
@@ -40,6 +44,10 @@ get_map_file() {
     # Check pwad found
     if [[ -z $pwadfile ]]; then
         echo "No pwad file found"
+        echo "### Random game settings"
+        echo "IWAD              : $IWAD"
+        echo "ENGINE            : $ENGINE"
+        echo "PWAD file         : $pwadfile"
         exit 1
     else
         echo "PWAD file: $pwadfile"
@@ -85,9 +93,11 @@ done
 
 # You can have separate mods "sets" for the source ports
 if [[ $ENGINE == "gzdoom" ]]; then
-    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JoyPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+elif [[ $ENGINE == "chocolate-doom" ]]; then
+    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad"
 else
-    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JoyPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad"
+    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad"
 fi
 
 if [[ $ENGINE == "chocolate-doom" ]]; then
@@ -95,7 +105,7 @@ if [[ $ENGINE == "chocolate-doom" ]]; then
 elif [[ $ENGINE == "crispy-doom" ]]; then
     commandline="crispy-doom -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
 elif [[ $ENGINE == "prboom-plus" ]]; then
-    commandline="prboom-plus -vidmode gl -complevel 17 -width 1920 -height 1080 -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -save $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+    commandline="prboom-plus -vidmode gl -complevel 17 -width 1920 -height 1080 -fullscreen -geom 640x360f -aspect 16:9 -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -save $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
 elif [[ $ENGINE == "gzdoom" ]]; then
     commandline="gzdoom -width 1920 -height 1080 -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
 fi
