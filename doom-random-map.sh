@@ -14,7 +14,8 @@ Help() {
   echo "  Available parameters:"
   echo "    doom game          -> doom | doom2 | tnt | plutonia | heretic | hexen"
   echo "    engine             -> chocolate | crispy | prboom-plus | gzdoom"
-  echo "    map limit          -> vanilla | limit-removing | boom | zdoom | slige | oblige"
+  echo "    map limit          -> none | vanilla | limit-removing | boom | zdoom | slige | oblige"
+  echo "    mods               -> none | vanilla | gzdoom | brutal"
   echo ""
 }
 
@@ -27,6 +28,14 @@ if [ -z "$1" ]; then
   exit 1
 fi
 if [ -z "$2" ]; then
+  Help
+  exit 1
+fi
+if [ -z "$3" ]; then
+  Help
+  exit 1
+fi
+if [ -z "$4" ]; then
   Help
   exit 1
 fi
@@ -44,12 +53,18 @@ if [[ " "${engine[@]}" " != *" $2 "* ]]; then
   echo "${engine[@]/%/,}"
   exit 1
 fi
-#map_limit=(vanilla limit-removing boom zdoom)
-#if [[ " "${map_limit[@]}" " != *" $3 "* ]]; then
-#  echo "$3: not recognized. Valid map limits are:"
-#  echo "${map_limit[@]/%/,}"
-#  exit 1
-#fi
+map_limit=(none vanilla limit-removing boom zdoom)
+if [[ " "${map_limit[@]}" " != *" $3 "* ]]; then
+  echo "$3: not recognized. Valid map limits are:"
+  echo "${map_limit[@]/%/,}"
+  exit 1
+fi
+mods=(none vanilla gzdoom brutal)
+if [[ " "${mods[@]}" " != *" $4 "* ]]; then
+    echo "$4: not recognized. Valid mods are:"
+    echo "${mods[@]/%/,}"
+    exit 1
+fi
 
 ### Configuration
 GAME_DIR=~/games/doom
@@ -57,18 +72,34 @@ IWADS_DIR=$GAME_DIR/wads/iwads
 IWAD=$1
 ENGINE=$2
 MAP_LIMIT=$3
+MODS_TYPE=$4
 
 ### Script
 get_map_file() {
-    if [[ ! -z $MAP_LIMIT ]]; then
+    if [[ $MAP_LIMIT == "none" ]]; then
+        if [[ $ENGINE == "chocolate" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        elif [[ $ENGINE == "crispy" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        elif [[ $ENGINE == "prboom-plus" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        elif [[ $ENGINE == "gzdoom" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        fi
         pwadfile=$(find $GAME_DIR/wads/$IWAD/$MAP_LIMIT/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $ENGINE == "chocolate" ]]; then
+    elif [[ $MAP_LIMIT == "vanilla" ]]; then
         pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $ENGINE == "crispy" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $ENGINE == "prboom-plus" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $ENGINE == "gzdoom" ]]; then
+    elif [[ $MAP_LIMIT == "limit-removing" ]]; then
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/limit_removing/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+    elif [[ $MAP_LIMIT == "boom" ]]; then
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/boom/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+    elif [[ $MAP_LIMIT == "zdoom" ]]; then
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/zdoom/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+    elif [[ $MAP_LIMIT == "slige" ]]; then
+        #TODO
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+    elif [[ $MAP_LIMIT == "oblige" ]]; then
+        #TODO
         pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
     fi
 
@@ -131,42 +162,117 @@ done
 # You can have separate mods "sets" for the source ports
 if [[ $ENGINE == "gzdoom" ]]; then
     if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
-        #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
-        #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
-        MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad"
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        elif [[ $MODS_TYPE == "gzdoom" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        elif [[ $MODS_TYPE == "brutal" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_doom/brutalv21.8.0.pk3"            
+        fi
     elif [[ "$IWAD" == "heretic" ]]; then
-        #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
-        MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_heretic/Heretic-Shadow_Collection/1_BRUTAL_HERETIC/BrutalHereticRPG_V2.2.pk3"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        elif [[ $MODS_TYPE == "gzdoom" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        elif [[ $MODS_TYPE == "brutal" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_heretic/Heretic-Shadow_Collection/1_BRUTAL_HERETIC/BrutalHereticRPG_V2.2.pk3"
+        fi
     elif [[ "$IWAD" == "hexen" ]]; then
-        #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
-        MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        elif [[ $MODS_TYPE == "gzdoom" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        elif [[ $MODS_TYPE == "brutal" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_hexen/Hexen/1_BRUTAL_HEXEN/BrutalHexenRPG_V4.7.pk3"
+        fi
     fi
-    #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
 elif [[ $ENGINE == "chocolate" ]]; then
     if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
-        #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad"
-        MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        fi
     elif [[ "$IWAD" == "heretic" ]]; then
-        MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        fi
     elif [[ "$IWAD" == "hexen" ]]; then
-        MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        fi
     fi
 elif [[ $ENGINE == "crispy" ]]; then
     if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
-        #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad"
-        MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        fi
     elif [[ "$IWAD" == "heretic" ]]; then
-        MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        fi
     elif [[ "$IWAD" == "hexen" ]]; then
-        MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        fi
     fi
 elif [[ $ENGINE == "prboom-plus" ]]; then
-    #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad"
-    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+    if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        fi
+    elif [[ "$IWAD" == "heretic" ]]; then
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        fi
+    elif [[ "$IWAD" == "hexen" ]]; then
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        fi
+    fi
 else
-    #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad"
-    #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/smoothed/smoothed.wad"
-    MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+    if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        fi
+    elif [[ "$IWAD" == "heretic" ]]; then
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        fi
+    elif [[ "$IWAD" == "hexen" ]]; then
+        if [[ $MODS_TYPE == "none" ]]; then
+            MODS=""
+        elif [[ $MODS_TYPE == "vanilla" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        fi
+    fi
 fi
 
 if [[ $ENGINE == "chocolate" ]]; then
