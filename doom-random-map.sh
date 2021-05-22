@@ -15,7 +15,8 @@ Help() {
   echo "    doom game          -> doom | doom2 | tnt | plutonia | heretic | hexen"
   echo "    engine             -> chocolate | crispy | prboom-plus | gzdoom"
   echo "    map limit          -> none | vanilla | limit-removing | boom | zdoom | slige | oblige"
-  echo "    mods               -> none | vanilla | gzdoom | brutal"
+  echo "    mods               -> none | vanilla | gzdoom | beautiful | brutal"
+  echo "    mangohud           -> yes | no"
   echo ""
 }
 
@@ -39,6 +40,10 @@ if [ -z "$4" ]; then
   Help
   exit 1
 fi
+if [ -z "$5" ]; then
+  Help
+  exit 1
+fi
 
 ### check parameter values
 doom_game=(doom doom2 tnt plutonia heretic hexen)
@@ -59,10 +64,16 @@ if [[ " "${map_limit[@]}" " != *" $3 "* ]]; then
   echo "${map_limit[@]/%/,}"
   exit 1
 fi
-mods=(none vanilla gzdoom brutal)
+mods=(none vanilla gzdoom beautiful brutal)
 if [[ " "${mods[@]}" " != *" $4 "* ]]; then
     echo "$4: not recognized. Valid mods are:"
     echo "${mods[@]/%/,}"
+    exit 1
+fi
+mangohud_enabled=(yes no)
+if [[ " "${mangohud_enabled[@]}" " != *" $5 "* ]]; then
+    echo "$5: not recognized. Valid mangohud options are:"
+    echo "${mangohud_enabled[@]/%/,}"
     exit 1
 fi
 
@@ -73,6 +84,7 @@ IWAD=$1
 ENGINE=$2
 MAP_LIMIT=$3
 MODS_TYPE=$4
+MANGOHUD_ENABLED=$5
 
 ### Script
 get_map_file() {
@@ -86,7 +98,6 @@ get_map_file() {
         elif [[ $ENGINE == "gzdoom" ]]; then
             pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
         fi
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/$MAP_LIMIT/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "vanilla" ]]; then
         pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "limit-removing" ]]; then
@@ -159,6 +170,10 @@ do
     get_map_file
 done
 
+# Save map info in external file
+play_combination="${IWAD},${ENGINE},${pwadfile},${pwadmap}"
+echo "${play_combination}" >> "./already_played_maps.txt"
+
 # You can have separate mods "sets" for the source ports
 if [[ $ENGINE == "gzdoom" ]]; then
     if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
@@ -169,6 +184,8 @@ if [[ $ENGINE == "gzdoom" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         elif [[ $MODS_TYPE == "gzdoom" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        elif [[ $MODS_TYPE == "beautiful" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/beautiful_doom/Beautiful_Doom_710.pk3"            
         elif [[ $MODS_TYPE == "brutal" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_doom/brutalv21.8.0.pk3"            
         fi
@@ -198,7 +215,7 @@ elif [[ $ENGINE == "chocolate" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -218,7 +235,7 @@ elif [[ $ENGINE == "crispy" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -238,7 +255,7 @@ elif [[ $ENGINE == "prboom-plus" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -258,7 +275,7 @@ else
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -273,6 +290,12 @@ else
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
         fi
     fi
+fi
+
+if [[ $MANGOHUD_ENABLED == "yes" ]]; then
+    export MANGOHUD_DLSYM=1
+    #export MANGOHUD_CONFIG=cpu_temp,gpu_temp,core_load,cpu_core_clock,gpu_mem_clock,cpu_power,gpu_power,cpu_mhz,ram,vram,frametime,position=top-left,height=500,font_size=24
+    export MANGOHUD_CONFIG=cpu_temp,gpu_temp,cpu_core_clock,gpu_mem_clock,cpu_power,gpu_power,cpu_mhz,ram,vram,frametime,position=top-left,height=500,font_size=18
 fi
 
 if [[ $ENGINE == "chocolate" ]]; then
@@ -299,7 +322,14 @@ elif [[ $ENGINE == "gzdoom" ]]; then
 fi
 
 # Run
-$commandline
+if [[ $MANGOHUD_ENABLED == "yes" ]]; then
+    mangohud $commandline
+else
+    $commandline
+fi
+
+# Check played times in external file
+played_times=$(cat ./already_played_maps.txt | grep -w -c ${play_combination})
 
 echo "### Random game settings"
 echo "IWAD              : $IWAD"
@@ -308,3 +338,6 @@ echo "PWAD file         : $pwadfile"
 echo "PWAD map number   : $pwadmap"
 echo "MOD files         : $MODS"
 echo "Full command line : $commandline"
+echo ""
+echo "Iwad/Engine/Map combination: ${play_combination}"
+echo "Iwad/Engine/Map combination played ${played_times} times"
