@@ -90,28 +90,28 @@ MANGOHUD_ENABLED=$5
 get_map_file() {
     if [[ $MAP_LIMIT == "none" ]]; then
         if [[ $ENGINE == "chocolate" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
         elif [[ $ENGINE == "crispy" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
         elif [[ $ENGINE == "prboom-plus" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
         elif [[ $ENGINE == "gzdoom" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
         fi
     elif [[ $MAP_LIMIT == "vanilla" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "limit-removing" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/limit_removing/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/limit_removing/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "boom" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/boom/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/boom/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "zdoom" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/zdoom/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/zdoom/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "slige" ]]; then
         #TODO
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
     elif [[ $MAP_LIMIT == "oblige" ]]; then
         #TODO
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* -type f 2>/dev/null | shuf -n 1)
+        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
     fi
 
     # Check pwad found
@@ -171,8 +171,22 @@ do
 done
 
 # Save map info in external file
-play_combination="${IWAD},${ENGINE},${pwadfile},${pwadmap}"
-echo "${play_combination}" >> "./already_played_maps.txt"
+play_combination="${IWAD},${pwadfile},${pwadmap}"
+
+# Check played times in external file
+if [ ! -z $(grep "${play_combination}" ./already_played_maps.txt) ]; then 
+    echo "Play combination found in file, updating file"
+    current_times=$(cat ./already_played_maps.txt | grep ${play_combination} | awk -F, '{print $5}')
+    updated_times=$(($current_times + 1))
+
+    # Update file
+    sed -i "s/\${play_combination},\${current_times}/\${play_combination},\${updated_times}/g" ./already_played_maps.txt
+else
+    echo "Play combination not found in file, adding to file"
+    played_times="1"
+    new_played="${play_combination},${played_times}"
+    echo "${new_played}" >> ./already_played_maps.txt
+fi
 
 # You can have separate mods "sets" for the source ports
 if [[ $ENGINE == "gzdoom" ]]; then
@@ -327,9 +341,6 @@ if [[ $MANGOHUD_ENABLED == "yes" ]]; then
 else
     $commandline
 fi
-
-# Check played times in external file
-played_times=$(cat ./already_played_maps.txt | grep -w -c ${play_combination})
 
 echo "### Random game settings"
 echo "IWAD              : $IWAD"

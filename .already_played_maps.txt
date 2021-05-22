@@ -1,0 +1,1 @@
+doom2,chocolate,/home/lea/games/doom/wads/doom2/vanilla/master_levels_doom_2/blacktwr.wad,25,1
