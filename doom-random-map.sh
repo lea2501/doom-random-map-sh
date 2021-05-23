@@ -176,11 +176,11 @@ play_combination="${IWAD},${pwadfile},${pwadmap}"
 # Check played times in external file
 if [ ! -z $(grep "${play_combination}" ./already_played_maps.txt) ]; then 
     echo "Play combination found in file, updating file"
-    current_times=$(cat ./already_played_maps.txt | grep ${play_combination} | awk -F, '{print $5}')
-    updated_times=$(($current_times + 1))
+    current_times=$(cat ./already_played_maps.txt | grep ${play_combination} | awk -F, '{print $4}')
+    played_times=$(echo "$(($current_times + 1))")
 
     # Update file
-    sed -i "s/\${play_combination},\${current_times}/\${play_combination},\${updated_times}/g" ./already_played_maps.txt
+    sed -i "s/\${play_combination},\${current_times}/\${play_combination},\${played_times}/g" ./already_played_maps.txt
 else
     echo "Play combination not found in file, adding to file"
     played_times="1"
