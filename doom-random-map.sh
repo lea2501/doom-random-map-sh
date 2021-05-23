@@ -180,7 +180,7 @@ if [ ! -z $(grep "${play_combination}" ./already_played_maps.txt) ]; then
     played_times=$(echo "$(($current_times + 1))")
 
     # Update file
-    sed -i "s/\${play_combination},\${current_times}/\${play_combination},\${played_times}/g" ./already_played_maps.txt
+    sed -i "s|${play_combination},${current_times}|${play_combination},${played_times}|g" ./already_played_maps.txt
 else
     echo "Play combination not found in file, adding to file"
     played_times="1"
