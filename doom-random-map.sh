@@ -7,15 +7,16 @@ set -e
 
 Help() {
   # Display Help
-  echo "Runs automation test locally sending results to Jenkins."
+  echo "Run a random doom wad with specific parameters."
   echo ""
   echo "  Syntax: ./doom-random-map.sh [params]"
   echo ""
   echo "  Available parameters:"
   echo "    doom game          -> doom | doom2 | tnt | plutonia | heretic | hexen"
   echo "    engine             -> chocolate | crispy | prboom-plus | gzdoom"
-  echo "    map limit          -> none | vanilla | limit-removing | boom | zdoom | slige | oblige"
-  echo "    mods               -> none | vanilla | gzdoom | beautiful | brutal"
+  echo "    map limit          -> none | vanilla | nolimit | boom | zdoom"
+  echo "    map generation     -> none | slige | obsidian"
+  echo "    mods               -> none | vanilla | improved | beautiful | brutal"
   echo "    mangohud           -> yes | no"
   echo ""
 }
@@ -44,6 +45,10 @@ if [ -z "$5" ]; then
   Help
   exit 1
 fi
+if [ -z "$6" ]; then
+  Help
+  exit 1
+fi
 
 ### check parameter values
 doom_game=(doom doom2 tnt plutonia heretic hexen)
@@ -58,60 +63,79 @@ if [[ " "${engine[@]}" " != *" $2 "* ]]; then
   echo "${engine[@]/%/,}"
   exit 1
 fi
-map_limit=(none vanilla limit-removing boom zdoom)
+map_limit=(none vanilla nolimit boom zdoom)
 if [[ " "${map_limit[@]}" " != *" $3 "* ]]; then
   echo "$3: not recognized. Valid map limits are:"
   echo "${map_limit[@]/%/,}"
   exit 1
 fi
-mods=(none vanilla gzdoom beautiful brutal)
-if [[ " "${mods[@]}" " != *" $4 "* ]]; then
-    echo "$4: not recognized. Valid mods are:"
+map_generator=(none slige obsidian)
+if [[ " "${map_generator[@]}" " != *" $4 "* ]]; then
+  echo "$4: not recognized. Valid map generators are:"
+  echo "${map_generator[@]/%/,}"
+  exit 1
+fi
+mods=(none vanilla improved beautiful brutal)
+if [[ " "${mods[@]}" " != *" $5 "* ]]; then
+    echo "$5: not recognized. Valid mods are:"
     echo "${mods[@]/%/,}"
     exit 1
 fi
 mangohud_enabled=(yes no)
-if [[ " "${mangohud_enabled[@]}" " != *" $5 "* ]]; then
-    echo "$5: not recognized. Valid mangohud options are:"
+if [[ " "${mangohud_enabled[@]}" " != *" $6 "* ]]; then
+    echo "$7: not recognized. Valid mangohud options are:"
     echo "${mangohud_enabled[@]/%/,}"
     exit 1
 fi
 
 ### Configuration
 GAME_DIR=~/games/doom
+SCRIPT_DIR="$(pwd $(dirname $0))"
 IWADS_DIR=$GAME_DIR/wads/iwads
 IWAD=$1
 ENGINE=$2
 MAP_LIMIT=$3
-MODS_TYPE=$4
-MANGOHUD_ENABLED=$5
+MAP_GENERATOR=$4
+MODS_TYPE=$5
+MANGOHUD_ENABLED=$7
 
 ### Script
 get_map_file() {
-    if [[ $MAP_LIMIT == "none" ]]; then
-        if [[ $ENGINE == "chocolate" ]]; then
+    if [[ $MAP_GENERATOR == "none" ]]; then
+        if [[ $MAP_LIMIT == "none" ]]; then
+            if [[ $ENGINE == "chocolate" ]]; then
+                pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+            elif [[ $ENGINE == "crispy" ]]; then
+                pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,nolimit}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+            elif [[ $ENGINE == "prboom-plus" ]]; then
+                pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,nolimit,boom}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+            elif [[ $ENGINE == "gzdoom" ]]; then
+                pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,nolimit,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+            fi
+        elif [[ $MAP_LIMIT == "vanilla" ]]; then
             pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-        elif [[ $ENGINE == "crispy" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-        elif [[ $ENGINE == "prboom-plus" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom}/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-        elif [[ $ENGINE == "gzdoom" ]]; then
-            pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+        elif [[ $MAP_LIMIT == "nolimit" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/nolimit/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+        elif [[ $MAP_LIMIT == "boom" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/boom/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+        elif [[ $MAP_LIMIT == "zdoom" ]]; then
+            pwadfile=$(find $GAME_DIR/wads/$IWAD/zdoom/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
         fi
-    elif [[ $MAP_LIMIT == "vanilla" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/vanilla/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $MAP_LIMIT == "limit-removing" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/limit_removing/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $MAP_LIMIT == "boom" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/boom/*/*.wad ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $MAP_LIMIT == "zdoom" ]]; then
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/zdoom/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $MAP_LIMIT == "slige" ]]; then
-        #TODO
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
-    elif [[ $MAP_LIMIT == "oblige" ]]; then
-        #TODO
-        pwadfile=$(find $GAME_DIR/wads/$IWAD/{vanilla,limit_removing,boom,zdoom}/*/{*.wad,*.pk3} ! -name *tex*.* ! -name *res*.* ! -name *fix.* ! -name *demo*.* ! -name *credits*.* -type f 2>/dev/null | shuf -n 1)
+    elif [[ $MAP_GENERATOR == "slige" ]]; then
+        if [[ $MAP_LIMIT == "vanilla" ]]; then
+            echo "Creating new slige map..."
+            pwadfile="$GAME_DIR/wads/slige/slige_doom2.wad"
+            $GAME_DIR/tools/slige/slige490/slige -config $GAME_DIR/tools/slige/slige490/slige.cfg -doom2 -levels 1 -rooms 18 -map1 -bimo -biwe -minlight 180 -nocustom $GAME_DIR/wads/slige/slige_doom2.out && $GAME_DIR/tools/bsp/bsp-5.2/bsp $GAME_DIR/wads/slige/slige_doom2.out -o $pwadfile
+            echo "New slige map created... ${pwadfile}"
+        else
+            echo "ERROR: Slige can only make vanilla maps!"
+            exit 1
+        fi
+    elif [[ $MAP_GENERATOR == "obsidian" ]]; then
+        echo "Creating new obsidian map..."
+        pwadfile="$GAME_DIR/wads/obsidian/obsidian_doom2.wad"
+        ~/src/Obsidian/obsidian --install ~/src/Obsidian/ --batch $pwadfile --load $GAME_DIR/tools/obsidian/configs/${IWAD}_${MAP_LIMIT}.txt
+        echo "New obsidian map created... ${pwadfile}"
     fi
 
     # Check pwad found
@@ -127,7 +151,11 @@ get_map_file() {
     fi
 
     # Check maps in file
-    pwadfilename=$(awk -F/ '{print $10}' <<< ${pwadfile})
+    if [[ $MAP_GENERATOR == "none" ]]; then
+        pwadfilename=$(awk -F/ '{print $10}' <<< ${pwadfile})
+    elif [[ $MAP_GENERATOR == "slige" || $MAP_GENERATOR == "obsidian" ]]; then
+        pwadfilename=$(awk -F/ '{print $8}' <<< ${pwadfile})
+    fi
     pwadfilename=$(basename -- "${pwadfilename%.*}")
     echo "PWAD name: $pwadfilename"
 
@@ -172,20 +200,23 @@ done
 
 # Save map info in external file
 play_combination="${IWAD},${pwadfile},${pwadmap}"
+play_combination=$(sed 's/ /_/g' <<< "${play_combination}")
 
 # Check played times in external file
-if [ ! -z $(grep "${play_combination}" ./already_played_maps.txt) ]; then 
-    echo "Play combination found in file, updating file"
-    current_times=$(cat ./already_played_maps.txt | grep ${play_combination} | awk -F, '{print $4}')
-    played_times=$(echo "$(($current_times + 1))")
+if [[ ! "$MAP_GENERATOR" == "slige"* && ! "$MAP_GENERATOR" == "oblige" && ! "$MAP_GENERATOR" == "obsidian"  ]]; then
+    if [ ! -z $(grep "${play_combination}" ${SCRIPT_DIR}/already_played_maps.txt) ]; then 
+        echo "Play combination found in file, updating file"
+        current_times=$(cat ${SCRIPT_DIR}/already_played_maps.txt | grep ${play_combination} | awk -F, '{print $4}')
+        played_times=$(echo "$(($current_times + 1))")
 
-    # Update file
-    sed -i "s|${play_combination},${current_times}|${play_combination},${played_times}|g" ./already_played_maps.txt
-else
-    echo "Play combination not found in file, adding to file"
-    played_times="1"
-    new_played="${play_combination},${played_times}"
-    echo "${new_played}" >> ./already_played_maps.txt
+        # Update file
+        sed -i "s|${play_combination},${current_times}|${play_combination},${played_times}|g" ${SCRIPT_DIR}/already_played_maps.txt
+    else
+        echo "Play combination not found in file, adding to file"
+        played_times="1"
+        new_played="${play_combination},${played_times}"
+        echo "${new_played}" >> ${SCRIPT_DIR}/already_played_maps.txt
+    fi
 fi
 
 # You can have separate mods "sets" for the source ports
@@ -195,9 +226,9 @@ if [[ $ENGINE == "gzdoom" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             #MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/jovian_palette/JovPal.wad"
-            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
-        elif [[ $MODS_TYPE == "gzdoom" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        elif [[ $MODS_TYPE == "improved" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb.wad $GAME_DIR/mods/vanilla/doom_sound_bulb/sound_bulb_extra_sfx.pk3 $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/smoothdoom/smoothdoom.pk3 $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad"
         elif [[ $MODS_TYPE == "beautiful" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/beautiful_doom/Beautiful_Doom_710.pk3"            
         elif [[ $MODS_TYPE == "brutal" ]]; then
@@ -207,9 +238,9 @@ if [[ $ENGINE == "gzdoom" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
-        elif [[ $MODS_TYPE == "gzdoom" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+        elif [[ $MODS_TYPE == "improved" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad "
         elif [[ $MODS_TYPE == "brutal" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_heretic/Heretic-Shadow_Collection/1_BRUTAL_HERETIC/BrutalHereticRPG_V2.2.pk3"
         fi
@@ -218,7 +249,7 @@ if [[ $ENGINE == "gzdoom" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
-        elif [[ $MODS_TYPE == "gzdoom" ]]; then
+        elif [[ $MODS_TYPE == "improved" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
         elif [[ $MODS_TYPE == "brutal" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_hexen/Hexen/1_BRUTAL_HEXEN/BrutalHexenRPG_V4.7.pk3"
@@ -230,6 +261,8 @@ elif [[ $ENGINE == "chocolate" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        elif [[ $MODS_TYPE == "improved" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb_legacy.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad $GAME_DIR/mods/vanilla/vanilla_doom_smooth_weapons/vsmooth.wad -dehlump"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -250,6 +283,8 @@ elif [[ $ENGINE == "crispy" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        elif [[ $MODS_TYPE == "improved" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb_legacy.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad $GAME_DIR/mods/vanilla/vanilla_doom_smooth_weapons/vsmooth.wad"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -270,26 +305,8 @@ elif [[ $ENGINE == "prboom-plus" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
-        fi
-    elif [[ "$IWAD" == "heretic" ]]; then
-        if [[ $MODS_TYPE == "none" ]]; then
-            MODS=""
-        elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
-        fi
-    elif [[ "$IWAD" == "hexen" ]]; then
-        if [[ $MODS_TYPE == "none" ]]; then
-            MODS=""
-        elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
-        fi
-    fi
-else
-    if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
-        if [[ $MODS_TYPE == "none" ]]; then
-            MODS=""
-        elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
+        elif [[ $MODS_TYPE == "improved" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb_legacy.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad $GAME_DIR/mods/vanilla/vanilla_doom_smooth_weapons/vsmooth.wad"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -335,11 +352,21 @@ elif [[ $ENGINE == "gzdoom" ]]; then
     commandline="gzdoom -width 1920 -height 1080 -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
 fi
 
+if [[ $ENGINE == "chocolate" ]]; then
+    CONFIG_FILE=${GAME_DIR}/config/chocolate/config.ini
+elif [[ $ENGINE == "crispy" ]]; then
+    CONFIG_FILE=${GAME_DIR}/config/crispy/config_nolimit.ini
+elif [[ $ENGINE == "prboom-plus" ]]; then
+    CONFIG_FILE=${GAME_DIR}/config/prboom-plus/prboom-plus_boom.cfg
+elif [[ $ENGINE == "gzdoom" ]]; then
+    CONFIG_FILE=${GAME_DIR}/config/zdoom/config_zdoom.ini
+fi
+
 # Run
 if [[ $MANGOHUD_ENABLED == "yes" ]]; then
-    mangohud $commandline
+    mangohud $commandline -config $CONFIG_FILE || true
 else
-    $commandline
+    $commandline -config $CONFIG_FILE || true
 fi
 
 echo "### Random game settings"
