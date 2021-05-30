@@ -12,9 +12,9 @@ function show_usage (){
     printf " -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]\n"
     printf " -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]\n"
     printf " -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]\n"
-    printf " -r|--map_generator [none|slige|obsidian]\n"
-    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal]\n"
-    printf " -u|--mangohud      [yes|no]\n"
+    printf " -r|--map_generator [none|slige|obsidian] (Optional)\n"
+    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional)\n"
+    printf " -u|--mangohud      [yes|no] (Optional)\n"
     printf " -h|--help, Print help\n"
 
 exit
@@ -67,6 +67,15 @@ done
 GAME_DIR=~/games/doom
 SCRIPT_DIR="$(pwd $(dirname $0))"
 IWADS_DIR=$GAME_DIR/wads/iwads
+if [[ -z $MANGOHUD_ENABLED ]]; then
+      MANGOHUD_ENABLED=no
+fi
+if [[ -z $MAP_GENERATOR ]]; then
+      MAP_GENERATOR=none
+fi
+if [[ -z $MODS_TYPE ]]; then
+      MODS_TYPE=vanilla
+fi
 
 
 ### check parameter values
