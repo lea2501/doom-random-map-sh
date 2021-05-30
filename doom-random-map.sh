@@ -5,99 +5,108 @@ set -e
 # debug log
 #set -x
 
-Help() {
-  # Display Help
-  echo "Run a random doom wad with specific parameters."
-  echo ""
-  echo "  Syntax: ./doom-random-map.sh [params]"
-  echo ""
-  echo "  Available parameters:"
-  echo "    doom game          -> doom | doom2 | tnt | plutonia | heretic | hexen"
-  echo "    engine             -> chocolate | crispy | prboom-plus | gzdoom"
-  echo "    map limit          -> none | vanilla | nolimit | boom | zdoom"
-  echo "    map generation     -> none | slige | obsidian"
-  echo "    mods               -> none | vanilla | improved | beautiful | brutal"
-  echo "    mangohud           -> yes | no"
-  echo ""
+function show_usage (){
+    printf "Usage: $0 [options [parameters]]\n"
+    printf "\n"
+    printf "Options:\n"
+    printf " -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]\n"
+    printf " -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]\n"
+    printf " -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]\n"
+    printf " -r|--map_generator [none|slige|obsidian]\n"
+    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal]\n"
+    printf " -u|--mangohud      [yes|no]\n"
+    printf " -h|--help, Print help\n"
+
+exit
 }
 
-if [[ $1 == "--help" || $1 == "-h" ]]; then
-    Help
-    exit 1
-fi
-if [ -z "$1" ]; then
-  Help
-  exit 1
-fi
-if [ -z "$2" ]; then
-  Help
-  exit 1
-fi
-if [ -z "$3" ]; then
-  Help
-  exit 1
-fi
-if [ -z "$4" ]; then
-  Help
-  exit 1
-fi
-if [ -z "$5" ]; then
-  Help
-  exit 1
-fi
-if [ -z "$6" ]; then
-  Help
-  exit 1
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]];then
+    show_usage
 fi
 
-### check parameter values
-doom_game=(doom doom2 tnt plutonia heretic hexen)
-if [[ " "${doom_game[@]}" " != *" $1 "* ]]; then
-  echo "$1: not recognized. Valid doom games are:"
-  echo "${doom_game[@]/%/,}"
-  exit 1
-fi
-engine=(chocolate crispy prboom-plus gzdoom)
-if [[ " "${engine[@]}" " != *" $2 "* ]]; then
-  echo "$2: not recognized. Valid engines are:"
-  echo "${engine[@]/%/,}"
-  exit 1
-fi
-map_limit=(none vanilla nolimit boom zdoom)
-if [[ " "${map_limit[@]}" " != *" $3 "* ]]; then
-  echo "$3: not recognized. Valid map limits are:"
-  echo "${map_limit[@]/%/,}"
-  exit 1
-fi
-map_generator=(none slige obsidian)
-if [[ " "${map_generator[@]}" " != *" $4 "* ]]; then
-  echo "$4: not recognized. Valid map generators are:"
-  echo "${map_generator[@]/%/,}"
-  exit 1
-fi
-mods=(none vanilla improved beautiful brutal)
-if [[ " "${mods[@]}" " != *" $5 "* ]]; then
-    echo "$5: not recognized. Valid mods are:"
-    echo "${mods[@]/%/,}"
-    exit 1
-fi
-mangohud_enabled=(yes no)
-if [[ " "${mangohud_enabled[@]}" " != *" $6 "* ]]; then
-    echo "$7: not recognized. Valid mangohud options are:"
-    echo "${mangohud_enabled[@]/%/,}"
-    exit 1
-fi
+while [ ! -z "$1" ]; do
+  case "$1" in
+     --game|-g)
+         shift
+         echo "game: $1"
+         IWAD=$1
+         ;;
+     --engine|-e)
+         shift
+         echo "engine: $1"
+         ENGINE=$1
+         ;;
+     --map_limit|-l)
+        shift
+        echo "map_limit: $1"
+        MAP_LIMIT=$1
+         ;;
+     --map_generator|-r)
+        shift
+        echo "map_generator: $1"
+        MAP_GENERATOR=$1
+         ;;
+     --mods|-m)
+        shift
+        echo "mods: $1"
+        MODS_TYPE=$1
+         ;;
+     --mangohud|-u)
+        shift
+        echo "mangohud: $1"
+        MANGOHUD_ENABLED=$1
+         ;;
+     *)
+        show_usage
+        ;;
+  esac
+shift
+done
 
 ### Configuration
 GAME_DIR=~/games/doom
 SCRIPT_DIR="$(pwd $(dirname $0))"
 IWADS_DIR=$GAME_DIR/wads/iwads
-IWAD=$1
-ENGINE=$2
-MAP_LIMIT=$3
-MAP_GENERATOR=$4
-MODS_TYPE=$5
-MANGOHUD_ENABLED=$7
+
+
+### check parameter values
+doom_game=(doom doom2 tnt plutonia heretic hexen)
+if [[ " "${doom_game[@]}" " != *" $IWAD "* ]]; then
+  echo "$IWAD: not recognized. Valid doom games are:"
+  echo "${doom_game[@]/%/,}"
+  exit 1
+fi
+engine=(chocolate crispy prboom-plus gzdoom)
+if [[ " "${engine[@]}" " != *" $ENGINE "* ]]; then
+  echo "$ENGINE: not recognized. Valid engines are:"
+  echo "${engine[@]/%/,}"
+  exit 1
+fi
+map_limit=(none vanilla nolimit boom zdoom)
+if [[ " "${map_limit[@]}" " != *" $MAP_LIMIT "* ]]; then
+  echo "$MAP_LIMIT: not recognized. Valid map limits are:"
+  echo "${map_limit[@]/%/,}"
+  exit 1
+fi
+map_generator=(none slige obsidian)
+if [[ " "${map_generator[@]}" " != *" $MAP_GENERATOR "* ]]; then
+  echo "$MAP_GENERATOR: not recognized. Valid map generators are:"
+  echo "${map_generator[@]/%/,}"
+  exit 1
+fi
+mods=(none vanilla improved beautiful brutal)
+if [[ " "${mods[@]}" " != *" $MODS_TYPE "* ]]; then
+    echo "$MODS_TYPE: not recognized. Valid mods are:"
+    echo "${mods[@]/%/,}"
+    exit 1
+fi
+mangohud_enabled=(yes no)
+if [[ " "${mangohud_enabled[@]}" " != *" $MANGOHUD_ENABLED "* ]]; then
+    echo "$MANGOHUD_ENABLED: not recognized. Valid mangohud options are:"
+    echo "${mangohud_enabled[@]/%/,}"
+    exit 1
+fi
+
 
 ### Script
 get_map_file() {
