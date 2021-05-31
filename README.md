@@ -9,6 +9,7 @@ It launches the random map using the source port you put as a parameter, the mai
 
 Dependencies:
 
+```
 (Required)
 GZDoom: https://github.com/coelckers/gzdoom
 
@@ -16,13 +17,28 @@ GZDoom: https://github.com/coelckers/gzdoom
 Chocolate-doom: http://www.chocolate-doom.org/
 Crispy-doom: http://fabiangreffrath.github.io/crispy-doom
 Prboom-plus: https://prboom-plus.sourceforge.net/
+```
 
-Usage: Edit GAME_DIR and IWADS_DIR values with your doom installation directories and run:
+Usage:
 
-./doom-random-map.sh <doom|doom2|tnt|plutonia> <chocolate-doom|crispy-doom|prboom-plus|gzdoom>
+```
+$ ./doom-random-map.sh -h
+Usage: ./doom-random-map.sh [options [parameters]]
 
-Your directory structure has to be like this if you don't modify the script "find" commands:
+Options:
+ -d|--game-dir      [doom|doom2|tnt|plutonia|heretic|hexen] (Optional, default: '~/games/doom')
+ -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]
+ -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]
+ -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]
+ -r|--map_generator [none|slige|obsidian] (Optional, default: 'none')
+ -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional, default: 'vanilla')
+ -u|--mangohud      [yes|no] (Optional, default: 'none')
+ -h|--help, Print help
+ ```
 
+NOTE: Your directory structure has to be like this if you don't modify the script "find" commands:
+
+```
         $ tree -L 2 -d ~/games/doom/
         ~/games/doom/
         ├── mods
@@ -98,3 +114,4 @@ Your directory structure has to be like this if you don't modify the script "fin
             └── tnt
             │   ├── boom
             │   └── vanilla
+```

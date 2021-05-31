@@ -9,12 +9,13 @@ function show_usage (){
     printf "Usage: $0 [options [parameters]]\n"
     printf "\n"
     printf "Options:\n"
+    printf " -d|--game-dir      [doom|doom2|tnt|plutonia|heretic|hexen] (Optional, default: '~/games/doom')\n"
     printf " -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]\n"
     printf " -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]\n"
     printf " -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]\n"
-    printf " -r|--map_generator [none|slige|obsidian] (Optional)\n"
-    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional)\n"
-    printf " -u|--mangohud      [yes|no] (Optional)\n"
+    printf " -r|--map_generator [none|slige|obsidian] (Optional, default: 'none')\n"
+    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional, default: 'vanilla')\n"
+    printf " -u|--mangohud      [yes|no] (Optional, default: 'none')\n"
     printf " -h|--help, Print help\n"
 
 exit
@@ -26,6 +27,11 @@ fi
 
 while [ ! -z "$1" ]; do
   case "$1" in
+     --game-dir|-d)
+         shift
+         echo "game directory: $1"
+         GAME_DIR=$1
+         ;;
      --game|-g)
          shift
          echo "game: $1"
@@ -64,7 +70,9 @@ shift
 done
 
 ### Configuration
-GAME_DIR=~/games/doom
+if [[ -z $GAME_DIR ]]; then
+      GAME_DIR=~/games/doom
+fi
 SCRIPT_DIR="$(pwd $(dirname $0))"
 IWADS_DIR=$GAME_DIR/wads/iwads
 if [[ -z $MANGOHUD_ENABLED ]]; then
