@@ -9,7 +9,7 @@ function show_usage (){
     printf "Usage: $0 [options [parameters]]\n"
     printf "\n"
     printf "Options:\n"
-    printf " -d|--game-dir      [doom|doom2|tnt|plutonia|heretic|hexen] (Optional, default: '~/games/doom')\n"
+    printf " -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')\n"
     printf " -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]\n"
     printf " -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]\n"
     printf " -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]\n"

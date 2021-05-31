@@ -26,7 +26,7 @@ $ ./doom-random-map.sh -h
 Usage: ./doom-random-map.sh [options [parameters]]
 
 Options:
- -d|--game-dir      [doom|doom2|tnt|plutonia|heretic|hexen] (Optional, default: '~/games/doom')
+ -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')
  -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]
  -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]
  -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]
