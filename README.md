@@ -39,79 +39,79 @@ Options:
 NOTE: Your directory structure has to be like this if you don't modify the script "find" commands:
 
 ```
-        $ tree -L 2 -d ~/games/doom/
-        ~/games/doom/
-        ├── mods
-        │   ├── vanilla
-        │   └── zdoom
-        ├── savegames
-        │   ├── doom
-        │   ├── doom2
-        │   ├── plutonia
-        │   └── tnt
-        ├── mods
-        │   ├── vanilla
-        │   │   ├── bd_dehacked
-        │   │   ├── blackops
-        │   │   ├── d64d2
-        │   │   ├── deh4t
-        │   │   ├── dehacked
-        │   │   ├── dimm_pal
-        │   │   ├── doom_sound_bulb
-        │   │   ├── isopal
-        │   │   ├── jovian_palette
-        │   │   ├── obticfix
-        │   │   ├── pal_plus
-        │   │   ├── pk_anim
-        │   │   ├── pk_doom_sfx
-        │   │   ├── remaster_sfx
-        │   │   ├── screem_pals
-        │   │   ├── smoothed
-        │   │   ├── sprfix19
-        │   │   ├── ssdx-the_gameboy_palette_pack
-        │   │   ├── vanilla_doom_smooth_weapons
-        │   │   ├── vbrutal
-        │   └── zdoom
-        │       ├── 0verp0wer_weap0ns
-        │       ├── ambience_pack
-        │       ├── arcane_dungeons
-        │       ├── beautiful_doom
-        │       ├── boss_battles
-        │       ├── brightmaps
-        │       ├── brutal
-        │       ├── vanilla_essence
-        │       ├── smoothdoom
-        │       └── zdoom-dhtp
-        └── wads
-            ├── doom
-            │   ├── boom
-            │   └── vanilla
-            ├── doom2
-            │   ├── boom
-            │   │   ├── 2048vr
-            │   │   ├── 300_min_vr
-            │   │   ├── whispers_of_satan
-            │   │   ├── world_orifice
-            │   │   └── wormwood
-            │   ├── limit_removing
-            │   ├── vanilla
-            │   │   ├── master_levels_doom_2
-            │   │   ├── memento_mori
-            │   │   ├── perditions_gate
-            │   │   └── resurgence
-            │   └── zdoom
-            │       ├── altar_of_evil
-            │       ├── crimson_canyon
-            │       ├── dalida_satanica_mortis
-            │       ├── dark_encounters
-            │       ├── darkstar
-            │       ├── zenblack
-            │       └── zen_dynamics
-            ├── original
-            ├── plutonia
-            │   ├── boom
-            │   └── vanilla
-            └── tnt
-            │   ├── boom
-            │   └── vanilla
+$ tree -L 2 -d ~/games/doom/
+~/games/doom/
+├── mods
+│   ├── vanilla
+│   └── zdoom
+├── savegames
+│   ├── doom
+│   ├── doom2
+│   ├── plutonia
+│   └── tnt
+├── mods
+│   ├── vanilla
+│   │   ├── bd_dehacked
+│   │   ├── blackops
+│   │   ├── d64d2
+│   │   ├── deh4t
+│   │   ├── dehacked
+│   │   ├── dimm_pal
+│   │   ├── doom_sound_bulb
+│   │   ├── isopal
+│   │   ├── jovian_palette
+│   │   ├── obticfix
+│   │   ├── pal_plus
+│   │   ├── pk_anim
+│   │   ├── pk_doom_sfx
+│   │   ├── remaster_sfx
+│   │   ├── screem_pals
+│   │   ├── smoothed
+│   │   ├── sprfix19
+│   │   ├── ssdx-the_gameboy_palette_pack
+│   │   ├── vanilla_doom_smooth_weapons
+│   │   ├── vbrutal
+│   └── zdoom
+│       ├── 0verp0wer_weap0ns
+│       ├── ambience_pack
+│       ├── arcane_dungeons
+│       ├── beautiful_doom
+│       ├── boss_battles
+│       ├── brightmaps
+│       ├── brutal
+│       ├── vanilla_essence
+│       ├── smoothdoom
+│       └── zdoom-dhtp
+└── wads
+    ├── doom
+    │   ├── boom
+    │   └── vanilla
+    ├── doom2
+    │   ├── boom
+    │   │   ├── 2048vr
+    │   │   ├── 300_min_vr
+    │   │   ├── whispers_of_satan
+    │   │   ├── world_orifice
+    │   │   └── wormwood
+    │   ├── limit_removing
+    │   ├── vanilla
+    │   │   ├── master_levels_doom_2
+    │   │   ├── memento_mori
+    │   │   ├── perditions_gate
+    │   │   └── resurgence
+    │   └── zdoom
+    │       ├── altar_of_evil
+    │       ├── crimson_canyon
+    │       ├── dalida_satanica_mortis
+    │       ├── dark_encounters
+    │       ├── darkstar
+    │       ├── zenblack
+    │       └── zen_dynamics
+    ├── original
+    ├── plutonia
+    │   ├── boom
+    │   └── vanilla
+    └── tnt
+    │   ├── boom
+    │   └── vanilla
 ```
