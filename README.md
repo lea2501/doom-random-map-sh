@@ -25,14 +25,16 @@ Usage:
 $ ./doom-random-map.sh -h
 Usage: ./doom-random-map.sh [options [parameters]]
 
-Options:
- -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')
+Mandatory options:
  -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]
  -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]
  -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]
+
+Options:
+ -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')
  -r|--map_generator [none|slige|obsidian] (Optional, default: 'none')
  -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional, default: 'vanilla')
- -u|--mangohud      [yes|no] (Optional, default: 'none')
+ -u|--mangohud      [yes|no] (Optional, default: 'no')
  -h|--help, Print help
  ```
 

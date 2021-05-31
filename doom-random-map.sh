@@ -8,14 +8,16 @@ set -e
 function show_usage (){
     printf "Usage: $0 [options [parameters]]\n"
     printf "\n"
-    printf "Options:\n"
-    printf " -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')\n"
+    printf "Mandatory options:\n"
     printf " -g|--game          [doom|doom2|tnt|plutonia|heretic|hexen]\n"
     printf " -e|--engine        [chocolate|crispy|prboom-plus|gzdoom]\n"
     printf " -l|--map_limit     [none|vanilla|nolimit|boom|zdoom]\n"
+    printf "\n"
+    printf "Options:\n"
+    printf " -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')\n"
     printf " -r|--map_generator [none|slige|obsidian] (Optional, default: 'none')\n"
     printf " -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional, default: 'vanilla')\n"
-    printf " -u|--mangohud      [yes|no] (Optional, default: 'none')\n"
+    printf " -u|--mangohud      [yes|no] (Optional, default: 'no')\n"
     printf " -h|--help, Print help\n"
 
 exit
@@ -23,6 +25,9 @@ exit
 
 if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]];then
     show_usage
+fi
+if [[ -z $1 ]]; then
+  show_usage
 fi
 
 while [ ! -z "$1" ]; do
