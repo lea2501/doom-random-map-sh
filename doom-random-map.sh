@@ -15,6 +15,7 @@ function show_usage (){
     printf "\n"
     printf "Options:\n"
     printf " -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')\n"
+    printf " -s|--skill         [1, 2, 3, 4, 5] (Optional, default: '3')\n"
     printf " -r|--map_generator [none|slige|obsidian] (Optional, default: 'none')\n"
     printf " -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional, default: 'vanilla')\n"
     printf " -u|--mangohud      [yes|no] (Optional, default: 'no')\n"
@@ -52,6 +53,11 @@ while [ ! -z "$1" ]; do
         echo "map_limit: $1"
         MAP_LIMIT=$1
          ;;
+     --skill|-s)
+        shift
+        echo "skill: $1"
+        SKILL=$1
+         ;;
      --map_generator|-r)
         shift
         echo "map_generator: $1"
@@ -85,6 +91,9 @@ if [[ -z $MANGOHUD_ENABLED ]]; then
 fi
 if [[ -z $MAP_GENERATOR ]]; then
       MAP_GENERATOR=none
+fi
+if [[ -z $SKILL ]]; then
+      SKILL=3
 fi
 if [[ -z $MODS_TYPE ]]; then
       MODS_TYPE=vanilla
@@ -126,6 +135,12 @@ mangohud_enabled=(yes no)
 if [[ " "${mangohud_enabled[@]}" " != *" $MANGOHUD_ENABLED "* ]]; then
     echo "$MANGOHUD_ENABLED: not recognized. Valid mangohud options are:"
     echo "${mangohud_enabled[@]/%/,}"
+    exit 1
+fi
+skill=(1 2 3 4 5)
+if [[ " "${skill[@]}" " != *" $SKILL "* ]]; then
+    echo "$SKILL: not recognized. Valid skills are:"
+    echo "${skill[@]/%/,}"
     exit 1
 fi
 
@@ -261,7 +276,7 @@ if [[ $ENGINE == "gzdoom" ]]; then
         elif [[ $MODS_TYPE == "improved" ]]; then
             MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb.wad $GAME_DIR/mods/vanilla/doom_sound_bulb/sound_bulb_extra_sfx.pk3 $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/smoothdoom/smoothdoom.pk3 $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad"
         elif [[ $MODS_TYPE == "beautiful" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/beautiful_doom/Beautiful_Doom_710.pk3"            
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/beautiful_doom/Beautiful_Doom_716.pk3"            
         elif [[ $MODS_TYPE == "brutal" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_doom/brutalv21.8.0.pk3"            
         fi
@@ -362,42 +377,34 @@ fi
 
 if [[ $ENGINE == "chocolate" ]]; then
     if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
-        commandline="chocolate-doom -fullscreen -iwad $IWADS_DIR/$IWAD.wad -merge $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+        commandline="chocolate-doom -fullscreen -iwad $IWADS_DIR/$IWAD.wad -merge $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
     elif [[ "$IWAD" == "heretic" ]]; then
-        commandline="chocolate-heretic -fullscreen -iwad $IWADS_DIR/$IWAD.wad -merge $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+        commandline="chocolate-heretic -fullscreen -iwad $IWADS_DIR/$IWAD.wad -merge $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
     elif [[ "$IWAD" == "hexen" ]]; then
-        commandline="chocolate-hexen -fullscreen -iwad $IWADS_DIR/$IWAD.wad -merge $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+        commandline="chocolate-hexen -fullscreen -iwad $IWADS_DIR/$IWAD.wad -merge $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
     fi
 elif [[ $ENGINE == "crispy" ]]; then
     if [[ "$IWAD" == *"doom"* || "$IWAD" == "tnt" || "$IWAD" == "plutonia" ]]; then
-        commandline="crispy-doom -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+        commandline="crispy-doom -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
     elif [[ "$IWAD" == "heretic" ]]; then
-        commandline="crispy-heretic -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+        commandline="crispy-heretic -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
     elif [[ "$IWAD" == "hexen" ]]; then
-        commandline="crispy-hexen -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+        #commandline="crispy-hexen -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
+        echo "ERROR: crispy engine is not available with hexen game!"
+        exit 1
     fi
 elif [[ $ENGINE == "prboom-plus" ]]; then
-    #commandline="prboom-plus -vidmode gl -complevel 17 -width 1920 -height 1080 -fullscreen -geom 640x360f -aspect 16:9 -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -save $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
-    commandline="prboom-plus -vidmode gl -complevel 17 -width 1920 -height 1080 -fullscreen -aspect 16:9 -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -save $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
+    #commandline="prboom-plus -vidmode gl -complevel 17 -width 1920 -height 1080 -fullscreen -geom 640x360f -aspect 16:9 -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -save $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
+    commandline="prboom-plus -vidmode gl -complevel 17 -width 1920 -height 1080 -fullscreen -aspect 16:9 -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -save $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
 elif [[ $ENGINE == "gzdoom" ]]; then
-    commandline="gzdoom -width 1920 -height 1080 -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill 3 -warp $pwadmap"
-fi
-
-if [[ $ENGINE == "chocolate" ]]; then
-    CONFIG_FILE=${GAME_DIR}/config/chocolate/config.ini
-elif [[ $ENGINE == "crispy" ]]; then
-    CONFIG_FILE=${GAME_DIR}/config/crispy/config_nolimit.ini
-elif [[ $ENGINE == "prboom-plus" ]]; then
-    CONFIG_FILE=${GAME_DIR}/config/prboom-plus/prboom-plus_boom.cfg
-elif [[ $ENGINE == "gzdoom" ]]; then
-    CONFIG_FILE=${GAME_DIR}/config/zdoom/config_zdoom.ini
+    commandline="gzdoom -width 1920 -height 1080 -fullscreen -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile $MODS -savedir $GAME_DIR/savegames/$IWAD/ -skill $SKILL -warp $pwadmap"
 fi
 
 # Run
 if [[ $MANGOHUD_ENABLED == "yes" ]]; then
-    mangohud $commandline -config $CONFIG_FILE || true
+    mangohud $commandline || true
 else
-    $commandline -config $CONFIG_FILE || true
+    $commandline || true
 fi
 
 echo "### Random game settings"
@@ -406,6 +413,7 @@ echo "ENGINE            : $ENGINE"
 echo "PWAD file         : $pwadfile"
 echo "PWAD map number   : $pwadmap"
 echo "MOD files         : $MODS"
+echo "SKILL             : $SKILL"
 echo "Full command line : $commandline"
 echo ""
 echo "Iwad/Engine/Map combination: ${play_combination}"
