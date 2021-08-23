@@ -17,7 +17,7 @@ function show_usage (){
     printf " -d|--game-dir      [/path/to/doom/base/directory] (Optional, default: '~/games/doom')\n"
     printf " -s|--skill         [1, 2, 3, 4, 5] (Optional, default: '3')\n"
     printf " -r|--map_generator [none|slige|obsidian] (Optional, default: 'none')\n"
-    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal] (Optional, default: 'vanilla')\n"
+    printf " -m|--mods          [none|vanilla|improved|beautiful|brutal|samsara] (Optional, default: 'vanilla')\n"
     printf " -u|--mangohud      [yes|no] (Optional, default: 'no')\n"
     printf " -h|--help, Print help\n"
 
@@ -125,7 +125,7 @@ if [[ " "${map_generator[@]}" " != *" $MAP_GENERATOR "* ]]; then
   echo "${map_generator[@]/%/,}"
   exit 1
 fi
-mods=(none vanilla improved beautiful brutal)
+mods=(none vanilla improved beautiful brutal samsara)
 if [[ " "${mods[@]}" " != *" $MODS_TYPE "* ]]; then
     echo "$MODS_TYPE: not recognized. Valid mods are:"
     echo "${mods[@]/%/,}"
@@ -276,19 +276,24 @@ if [[ $ENGINE == "gzdoom" ]]; then
         elif [[ $MODS_TYPE == "improved" ]]; then
             MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb.wad $GAME_DIR/mods/vanilla/doom_sound_bulb/sound_bulb_extra_sfx.pk3 $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/smoothdoom/smoothdoom.pk3 $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad"
         elif [[ $MODS_TYPE == "beautiful" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/beautiful_doom/Beautiful_Doom_716.pk3"            
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/beautiful_doom/Beautiful_Doom_716.pk3"
         elif [[ $MODS_TYPE == "brutal" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_doom/brutalv21.8.0.pk3"            
+            MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_doom/brutalv21.8.0.pk3"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/zdoom/samsara/samsara-v0.3666-beta.pk3 $GAME_DIR/mods/zdoom/samsara/SchMonsterMixer.pk3"
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/vanilla/dwarss_heretic_hq_sfx_pack/sfx.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
         elif [[ $MODS_TYPE == "improved" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad "
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/vanilla/dwarss_heretic_hq_sfx_pack/sfx.wad"
         elif [[ $MODS_TYPE == "brutal" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_heretic/Heretic-Shadow_Collection/1_BRUTAL_HERETIC/BrutalHereticRPG_V2.2.pk3"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "hexen" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
@@ -299,6 +304,9 @@ if [[ $ENGINE == "gzdoom" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/vanilla_essence/vanilla_essence_4_3.pk3"
         elif [[ $MODS_TYPE == "brutal" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad $GAME_DIR/mods/zdoom/brutal/brutal_hexen/Hexen/1_BRUTAL_HEXEN/BrutalHexenRPG_V4.7.pk3"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     fi
 elif [[ $ENGINE == "chocolate" ]]; then
@@ -309,18 +317,27 @@ elif [[ $ENGINE == "chocolate" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         elif [[ $MODS_TYPE == "improved" ]]; then
             MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb_legacy.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad $GAME_DIR/mods/vanilla/vanilla_doom_smooth_weapons/vsmooth.wad -dehlump"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/vanilla/dwarss_heretic_hq_sfx_pack/sfx.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "hexen" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     fi
 elif [[ $ENGINE == "crispy" ]]; then
@@ -331,18 +348,27 @@ elif [[ $ENGINE == "crispy" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         elif [[ $MODS_TYPE == "improved" ]]; then
             MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb_legacy.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad $GAME_DIR/mods/vanilla/vanilla_doom_smooth_weapons/vsmooth.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
-            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+            MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad $GAME_DIR/mods/vanilla/dwarss_heretic_hq_sfx_pack/sfx.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "hexen" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     fi
 elif [[ $ENGINE == "prboom-plus" ]]; then
@@ -353,18 +379,27 @@ elif [[ $ENGINE == "prboom-plus" ]]; then
             MODS="$GAME_DIR/mods/vanilla/pk_doom_sfx/pk_doom_sfx_20120224.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad"
         elif [[ $MODS_TYPE == "improved" ]]; then
             MODS="$GAME_DIR/mods/vanilla/doom_sound_bulb/doom_sound_bulb_legacy.wad $GAME_DIR/mods/vanilla/dimm_pal/doom-pal.wad $GAME_DIR/mods/vanilla/vbright/vbright.wad $GAME_DIR/mods/vanilla/softfx/softfx.wad $GAME_DIR/mods/vanilla/vanilla_doom_smooth_weapons/vsmooth.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "heretic" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/her-pal.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     elif [[ "$IWAD" == "hexen" ]]; then
         if [[ $MODS_TYPE == "none" ]]; then
             MODS=""
         elif [[ $MODS_TYPE == "vanilla" ]]; then
             MODS="$GAME_DIR/mods/vanilla/dimm_pal/hex-pal.wad"
+        elif [[ $MODS_TYPE == "samsara" ]]; then
+            echo "MOD Not available"
+            exit 1
         fi
     fi
 fi
