@@ -209,7 +209,7 @@ get_map_file() {
     gzdoom -iwad $IWADS_DIR/$IWAD.wad -file $pwadfile -norun -hashfiles > /dev/null || true
 
     if [[ $IWAD == "doom2" ]]; then
-        pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep " MAP" | awk '{print $4}' | sed -e "s/^MAP//" -e 's/,//g' | shuf -n 1)
+        pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep -e " MAP" -e " maps/" | awk '{print $4}' | sed -e "s/^MAP//" -e 's/,//g' | shuf -n 1)
         if [[ -z $pwadmap ]]; then
             pwadmap=$(cat fileinfo.txt | grep $pwadfilename | grep " maps/" | awk '{print $4}' | sed -e "s/^maps\/map//" -e 's/.wad,//g' | shuf -n 1)
         fi
