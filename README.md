@@ -1,3 +1,6 @@
+!!! DEVELOPMENT MOVED TO https://notabug.org/lea2501/doom-random-map-sh !!!
+
+
 # doom-random-map-sh
 A small random doom map launcher to discover those maps you downloaded and never actually played.
 
